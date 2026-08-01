@@ -1,36 +1,9 @@
-const CACHE_NAME = 'lunathina-v2';
-const BASE_URL = 'https://martystucchi95-sudo.github.io/LunaThina/';
-
-const ASSETS = [
-  BASE_URL,
-  BASE_URL + 'index.html',
-  BASE_URL + 'manifest.json',
-  BASE_URL + 'icon-192.png',
-  BASE_URL + 'icon-512.png',
-];
-
-self.addEventListener('install', function(e) {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(ASSETS);
-    })
-  );
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', function(e) {
-  e.waitUntil(
-    caches.keys().then(function(keys) {
-      return Promise.all(keys.filter(function(k) { return k !== CACHE_NAME; }).map(function(k) { return caches.delete(k); }));
-    })
-  );
-  e.waitUntil(clients.claim());
-});
-
-self.addEventListener('fetch', function(e) {
-  e.respondWith(
-    caches.match(e.request).then(function(response) {
-      return response || fetch(e.request);
-    })
-  );
-});
+const CACHE_NAME='lunathina-v3';
+const ASSETS=['./', './index.html','./manifest.json','./icon-192.png','./icon-512.png',
+  'https://unpkg.com/react@18/umd/react.production.min.js',
+  'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
+  'https://unpkg.com/@babel/standalone/babel.min.js',
+  'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Pacifico&family=Caveat:wght@600;700&family=Dancing+Script:wght@700&display=swap'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!=CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
+self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(cached=>cached||fetch(e.request).then(r=>{const cl=r.clone();caches.open(CACHE_NAME).then(c=>c.put(e.request,cl));return r;})));});
