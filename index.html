@@ -49,7 +49,18 @@
     const manifestURL = URL.createObjectURL(manifestBlob);
     document.querySelector('link[rel="manifest"]').href = manifestURL;
 
-  </script>
+    // Service Worker per PWA installabile
+    if ('serviceWorker' in navigator) {
+      const swCode = `
+        self.addEventListener('install', e => self.skipWaiting());
+        self.addEventListener('activate', e => clients.claim());
+        self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => new Response('offline'))));
+      `;
+      const swBlob = new Blob([swCode], {type: 'application/javascript'});
+      const swURL = URL.createObjectURL(swBlob);
+      navigator.serviceWorker.register(swURL).catch(console.error);
+    }
+  </script>>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
@@ -1419,7 +1430,7 @@ function App() {
               <div style={cardT}>📥 Scarica i tuoi dati</div>
               <div style={{ ...f, fontSize:13, color:"#aaa", marginBottom:14 }}>Scarica il diario o tutti i dati in formato CSV per Excel.</div>
               <button onClick={() => {
-                const lines = ["📓 DIARIO LUNATHINA", "---------------------------", ""];
+                const lines = ["📓 DIARIO LUNATHINA", "═══════════════════════════", ""];
                 const dates = Object.keys(data.logs).sort();
                 dates.forEach(date => {
                   const log = data.logs[date];
